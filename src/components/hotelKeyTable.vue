@@ -11,12 +11,12 @@
           </div>
           <li>
             <div style="position:absolute; top: 10px; right: 10px;">
-            <div style="display: inline-block">
-              <i class="el-icon-user-solid" style="font-size: 50px" />
-            </div>
-            <div style="display: inline-block">
-              Jhon Doe  <br><el-link type="primary">Logout</el-link>
-            </div>
+              <div style="display: inline-block">
+                <i class="el-icon-user-solid" style="font-size: 50px" />
+              </div>
+              <div style="display: inline-block">
+                Jhon Doe  <br><el-link type="primary">Logout</el-link>
+              </div>
             </div>
           </li>
         </ul>
@@ -31,60 +31,60 @@
       <el-main>
         <el-row style="margin-bottom: 30px"
                 type="flex" class="row-bg" justify="space-between">
-        <el-col :span="8" :offset="2">
-         <el-input align="left"
-           v-model="search" type="search"
-           placeholder="Type to search" >
-           <i slot="prefix" class="el-input__icon el-icon-search" />
-         </el-input>
-        </el-col>
+          <el-col :span="8" :offset="2">
+            <el-input align="left"
+                      v-model="search" type="search"
+                      placeholder="Type to search" >
+              <i slot="prefix" class="el-input__icon el-icon-search" />
+            </el-input>
+          </el-col>
           <el-col :span="5">
-            <el-button style="background: #f5f7fa">Register New Student</el-button>
+            <el-button style="background: #f5f7fa" @click="addUser()">Register New Student</el-button>
           </el-col>
         </el-row>
-    <el-row :gutter="20">
-      <el-col :span="20" :offset="2">
-        <el-table
-            :data="filteredProjects"
-            size="medium" border stripe >
-          <el-table-column
-              prop="index" style="background: gray"
-              label="Index"/>
-          <el-table-column
-              label="Name"
-              prop="name"
-              sortable
-          />
-          <el-table-column
-              label="DoB"
-              prop="date" />
-          <el-table-column
-              prop="municipality"
-              label="Municipality" />
-          <el-table-column label="Action">
-            <template slot-scope="scope">
-              <el-button
-                  size="mini"
-                  @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
-              <el-button
-                  size="mini"
-                  type="danger"
-                  @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
-            </template>
-          </el-table-column>
-        </el-table>
-      </el-col>
-    </el-row>
+        <el-row :gutter="20">
+          <el-col :span="20" :offset="2">
+            <el-table
+                :data="filteredProjects"
+                size="medium" border stripe >
+              <el-table-column
+                  prop="index" style="background: gray"
+                  label="Index"/>
+              <el-table-column
+                  label="Name"
+                  prop="name"
+                  sortable
+              />
+              <el-table-column
+                  label="DoB"
+                  prop="date" />
+              <el-table-column
+                  prop="municipality"
+                  label="Municipality" />
+              <el-table-column label="Action">
+                <template slot-scope="scope">
+                  <el-button
+                      size="mini"
+                      @click="handleEdit(scope.$index, scope.row)">Edit</el-button>
+                  <el-button
+                      size="mini"
+                      type="danger"
+                      @click="handleDelete(scope.$index, scope.row)">Delete</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-col>
+        </el-row>
       </el-main>
     </el-container>
-    <el-dialog title="Edit User" :visible.sync="dialogFormVisible" center width="40%"
+    <el-dialog :title="dialogTitle" :visible.sync="dialogFormVisible" center width="40%"
                destroy-on-close>
       <el-form :model="editForm" style="margin-bottom: 50px; padding: 20px 30px" ref="editForm"
                label-position="left" :rules="rules">
         <el-row>
           <el-col :span="16">
-            <el-form-item label="Index" :label-width="formLabelWidth">
-              <el-input readonly v-model="editForm.index" />
+            <el-form-item label="Index" :label-width="formLabelWidth" prop="index">
+              <el-input :readonly="showReadonly" v-model.number="editForm.index"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -97,9 +97,9 @@
         </el-row>
         <el-row>
           <el-col :span="16">
-          <el-form-item label="Date of Birth" :label-width="formLabelWidth" prop="dateOfBirth">
+          <el-form-item label="Date of Birth" :label-width="formLabelWidth" prop="date">
             <el-date-picker
-                v-model="editForm.dateOfBirth"
+                v-model="editForm.date"
                 type="date"
                 placeholder="Pick a day"
                 format="yyyy-MM-dd"
@@ -110,20 +110,21 @@
         </el-col>
         </el-row>
         <el-col :span="16">
-            <el-form-item label="Municipality" :label-width="formLabelWidth">
-              <el-select v-model="editForm.municipality">
-                <el-option v-for="data in tableData" :key="data.index"
-                            v-model="data.municipality"
-                >
-                  {{ data.municipality }}
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
+          <el-form-item label="Municipality" :label-width="formLabelWidth" prop="municipality">
+            <el-select v-model="editForm.municipality">
+              <el-option v-for="data in tableData" :key="data.index"
+                         v-model="data.municipality"
+              >
+                {{ data.municipality }}
+              </el-option>
+            </el-select>
+          </el-form-item>
+        </el-col>
       </el-form>
       <span slot="footer" class="dialog-footer" style="display: flex; justify-content: end">
           <el-button @click="cancelForm(editForm)">Cancel</el-button>
-          <el-button type="primary" @click="saveForm()">Safe</el-button>
+          <el-button type="primary" @click="saveForm()" v-if="showBtn">Safe</el-button>
+          <el-button type="primary" @click="HandleAddUser()" v-else>Add</el-button>
       </span>
     </el-dialog>
     <el-dialog :visible.sync="deleteDialog" title="Delete Confirmation" width="31%">
@@ -131,14 +132,14 @@
       <div style="font-size: 16px; color: black; padding: 30px;">
         Are you sure you want to delete the Selected User ?
       </div>
-        <div style="display: flex; justify-content: end; border-top: 1px solid black;">
+      <div style="display: flex; justify-content: end; border-top: 1px solid black;">
         <div style="margin: 10px">
           <el-button icon="el-icon-delete" @click="deleteDialog = false">Cancel</el-button>
           <el-button type="primary" @click="deleteUser()" icon="el-icon-success">Yes</el-button>
-         </div>
+        </div>
       </div>
     </el-dialog>
-    </div>
+  </div>
 </template>
 
 <script>
@@ -153,12 +154,28 @@ export default {
       }
     };
     let validateDateOfBirth = (rule, value, callback) => {
-      if (value === null) {
+      if (value === '' || value === null) {
         callback(new Error('Please input the date'));
       }  else {
         callback();
       }
     };
+    let validateIndex = (rule, value, callback) => {
+      if (!value) {
+        return callback(new Error('Please input the index'));
+      } else if (!Number.isInteger(value)) {
+        callback(new Error('Please input digits'));
+      } else {
+          callback();
+        }
+      };
+    let validateMunicipality = (rule, value, callback) => {
+      if(value === '' || value === null){
+        callback(new Error('Please input the municipality'));
+      }  else {
+        callback();
+      }
+    }
     return {
       rawTableData: [{
         index: '12987122',
@@ -208,19 +225,28 @@ export default {
       activeIndex: '1',
       dialogFormVisible: false,
       deleteDialog: false,
+      dialogTitle: '',
+      showBtn: true,
+      showReadonly: true,
       editForm:{
         index: '',
         name: '',
-        dateOfBirth: '',
+        date: '',
         municipality: '',
       },
       rules: {
         name: [
           { validator: validateName, trigger: 'blur' }
         ],
-        dateOfBirth: [
+        date: [
           { validator: validateDateOfBirth, trigger: 'blur' }
         ],
+        index: [
+          { validator: validateIndex, trigger: 'blur' },
+        ],
+        municipality: [
+          { validator: validateMunicipality, trigger: 'blur' }
+        ]
       }
     }
   },
@@ -229,6 +255,13 @@ export default {
     this.tableData = JSON.parse(localStorage.getItem("tableData"))
   },
   methods: {
+    addUserAlert() {
+      this.$notify.success({
+        title: 'Success',
+        message: 'User Was Added Successfully',
+        showClose: false
+      });
+    },
     deletedUserAlert() {
       this.$notify.success({
         title: 'Success',
@@ -244,22 +277,23 @@ export default {
       });
     },
     handleEdit(index, row) {
-      this.editForm.index = row.index
+      this.showReadonly = true;
+      this.showBtn = true
+      this.dialogTitle = 'Edit User'
+      this.editForm.index = parseInt(row.index)
       this.editForm.name = row.name
-      this.editForm.dateOfBirth = row.date
+      this.editForm.date = row.date
       this.editForm.municipality = row.municipality
       this.dialogFormVisible = true;
-      localStorage.setItem("editRow", row.index)
+      localStorage.setItem("editRow", index)
     },
     saveForm(){
       this.$refs["editForm"].validate((valid) => {
         if (valid){
+          const index = localStorage.getItem("editRow")
           this.dialogFormVisible = false
-          const index = this.tableData.findIndex(object => {
-            return object.index === localStorage.getItem("editRow");
-          });
           this.tableData[index].name = this.editForm.name
-          this.tableData[index].date = this.editForm.dateOfBirth
+          this.tableData[index].date = this.editForm.date
           this.tableData[index].municipality = this.editForm.municipality
           localStorage.setItem("tableData", JSON.stringify(this.tableData))
           this.editUserAlert();
@@ -286,14 +320,41 @@ export default {
       for (const key in obj) {
         obj[key] = "";
       }
+    },
+    addUser(){
+      this.cancelForm(this.editForm)
+      this.showReadonly = false
+      this.showBtn = false
+      this.dialogFormVisible = true
+      this.dialogTitle = 'Add User'
+    },
+    HandleAddUser(){
+      this.$refs["editForm"].validate((valid) => {
+        if(valid){
+          this.dialogFormVisible = false
+          localStorage.setItem("newRow", JSON.stringify(this.editForm));
+          this.tableData.push({
+            index: this.editForm.index,
+            name: this.editForm.name,
+            date: this.editForm.date,
+            municipality: this.editForm.municipality,
+
+          });
+          this.addUserAlert()
+          localStorage.setItem("tableData", JSON.stringify(this.tableData))
+        }
+        else{
+          return false
+        }
+      })
     }
   },
   computed:{
     filteredProjects(){
       return this.tableData.filter((obj) => {
-        return obj.index.toLowerCase().includes(this.search.toLowerCase()) ||
-            obj.name.toLowerCase().includes(this.search.toLowerCase()) ||
-            obj.municipality.toLowerCase().includes(this.search.toLowerCase())
+        return obj.index.toString().toLowerCase().includes(this.search.toLowerCase()) ||
+            obj.name.toString().toLowerCase().includes(this.search.toLowerCase()) ||
+            obj.municipality.toString().toLowerCase().includes(this.search.toLowerCase())
       })
     }
   },
